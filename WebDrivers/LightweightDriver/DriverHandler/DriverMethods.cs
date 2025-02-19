@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Net.WebSockets;
 using System.Text.Json;
-using Script.LightweightDriver.InternalServices;
+using Script.WebDrivers.LightweightDriver.InternalServices;
 
-namespace Script.LightweightDriver.DriverHandler
+namespace Script.WebDrivers.LightweightDriver.DriverHandler
 {
-    internal class DriverMethods(ClientWebSocket socket) : IDriverMethods
+    public class DriverMethods(ClientWebSocket socket) : IDriverMethods
     {
         internal static string GetJavaScriptReturnValue(string message)
         {
@@ -61,7 +61,7 @@ namespace Script.LightweightDriver.DriverHandler
             if (javascriptNavigate)
             {
                 navigateEvent.Add("method", "Runtime.evaluate");
-                navigateEvent.Add("params", new Dictionary<string, string> {{ "expression", $"document.location.href = \"{url}\"" }});
+                navigateEvent.Add("params", new Dictionary<string, string> { { "expression", $"document.location.href = \"{url}\"" } });
             }
             else
             {
@@ -110,7 +110,7 @@ namespace Script.LightweightDriver.DriverHandler
                 {"method", "Runtime.evaluate"},
                 {"params", new Dictionary<string, string> {{"expression", script}}}
             };
-            
+
             await SocketService.SendAsync(socket, JsonSerializer.Serialize(navigateEvent));
         }
     }

@@ -1,13 +1,13 @@
-﻿using Script.LightweightDriver.DriverHandler;
+﻿using Script.WebDrivers.LightweightDriver.DriverHandler;
 using System.Diagnostics;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using static System.Net.WebRequestMethods;
 
-namespace Script.HeavyDriver
+namespace Script.WebDrivers.HeavyDriver
 {
-    internal class SocketHandler
+    public class SocketHandler
     {
         public SocketHandler(ClientWebSocket socket, int port)
         {

@@ -1,6 +1,6 @@
-﻿namespace Script.HeavyDriver
+﻿namespace Script.WebDrivers.HeavyDriver
 {
-    internal class Events
+    public class Events
     {
         internal delegate void FrameChangedEvent(string? url, string frameId);
 

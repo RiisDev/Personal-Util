@@ -1,10 +1,26 @@
 ﻿
 using System.Globalization;
+using System.Net;
 
 namespace Script.Util
 {
     public static class Misc
     {
+        public static (HttpClient, CookieContainer) BuildClient()
+        {
+            CookieContainer container = new();
+            HttpClient client = new(new HttpClientHandler
+            {
+                AutomaticDecompression = DecompressionMethods.All,
+                ServerCertificateCustomValidationCallback = (_, _, _, _) => true,
+                CookieContainer = container,
+                AllowAutoRedirect = true
+            });
+
+            return (client, container);
+        }
+        
+
         public static string ConvertSecondsToTime(long seconds)
         {
             List<(string Name, long Value)> units =

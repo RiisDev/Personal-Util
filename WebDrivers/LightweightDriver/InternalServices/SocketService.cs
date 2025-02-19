@@ -3,9 +3,9 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 
-namespace Script.LightweightDriver.InternalServices
+namespace Script.WebDrivers.LightweightDriver.InternalServices
 {
-    internal class SocketService
+    public class SocketService
     {
         internal static readonly Dictionary<int, TaskCompletionSource<string>> PendingRequests = new();
 
@@ -13,7 +13,7 @@ namespace Script.LightweightDriver.InternalServices
         {
             Debug.WriteLine(message);
 
-            Task.Run(async() => { await EventsService.CheckForHandledEvent(message); });
+            Task.Run(async () => { await EventsService.CheckForHandledEvent(message); });
 
             Dictionary<string, object>? json = JsonSerializer.Deserialize<Dictionary<string, object>>(message);
 

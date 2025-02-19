@@ -4,8 +4,8 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Web;
-using Script.HeavyDriver;
-using Script.LightweightDriver.DriverHandler;
+using Script.WebDrivers.HeavyDriver;
+using Script.WebDrivers.LightweightDriver.DriverHandler;
 
 namespace Script.Util;
 

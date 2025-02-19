@@ -2,7 +2,7 @@
 using System.Net.Sockets;
 using System.Net;
 using System.Runtime.InteropServices;
-namespace Script.HeavyDriver
+namespace Script.WebDrivers.HeavyDriver
 {
     internal static class Win32
     {

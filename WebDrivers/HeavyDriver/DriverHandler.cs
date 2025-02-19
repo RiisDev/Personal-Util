@@ -6,9 +6,9 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
-namespace Script.HeavyDriver;
+namespace Script.WebDrivers.HeavyDriver;
 
-internal class DriverHandler
+public class DriverHandler
 {
     public delegate void FuckMe();
 

@@ -1,6 +1,6 @@
 ﻿using System.Net.WebSockets;
 
-namespace Script.LightweightDriver.DriverHandler
+namespace Script.WebDrivers.LightweightDriver.DriverHandler
 {
     internal interface IDriverMethods
     {

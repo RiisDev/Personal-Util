@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 // ReSharper disable InconsistentNaming
 
-namespace Script.LightweightDriver.Events
+namespace Script.WebDrivers.LightweightDriver.Events
 {
     internal static class PageEvents
     {
@@ -20,7 +20,7 @@ namespace Script.LightweightDriver.Events
             if (message.Contains("Page.frameNavigated"))
             {
                 FrameNavigated_Root? frameNavigatedRoot = JsonSerializer.Deserialize<FrameNavigated_Root>(message);
-                if (frameNavigatedRoot is not null) 
+                if (frameNavigatedRoot is not null)
                     OnFrameNavigation?.Invoke(frameNavigatedRoot.FrameNavigatedParams.Frame.Url, frameNavigatedRoot.FrameNavigatedParams.Frame.Id);
             }
             else if (message.Contains("Page.frameStoppedLoading"))

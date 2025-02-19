@@ -4,11 +4,11 @@ using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Script.LightweightDriver.InternalServices;
+using Script.WebDrivers.LightweightDriver.InternalServices;
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
-namespace Script.LightweightDriver.DriverHandler
+namespace Script.WebDrivers.LightweightDriver.DriverHandler
 {
     public record CreationReturn(
         [property: JsonPropertyName("description")] string Description,
@@ -20,7 +20,7 @@ namespace Script.LightweightDriver.DriverHandler
         [property: JsonPropertyName("webSocketDebuggerUrl")] string WebSocketDebuggerUrl
     );
 
-    internal class DriverService
+    public class DriverService
     {
 
         internal static int GetRandomId() => new Random((int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()).Next();

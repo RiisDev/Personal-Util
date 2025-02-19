@@ -1,13 +1,13 @@
 ﻿using System.Diagnostics;
 using System.Net.WebSockets;
 using System.Text.Json;
-using Script.LightweightDriver.DriverHandler;
-using Script.LightweightDriver.Events;
-using static Script.LightweightDriver.InternalServices.SocketService;
+using Script.WebDrivers.LightweightDriver.DriverHandler;
+using Script.WebDrivers.LightweightDriver.Events;
+using static Script.WebDrivers.LightweightDriver.InternalServices.SocketService;
 
-namespace Script.LightweightDriver.InternalServices
+namespace Script.WebDrivers.LightweightDriver.InternalServices
 {
-    internal class EventsService
+    public class EventsService
     {
         internal static async Task HookEvents(ClientWebSocket socket)
         {

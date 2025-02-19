@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace Script.Bypasses
 {
-    internal class OuOBypass
+    public class OuOBypass
     {
         HttpClientHandler handler = new()
         {

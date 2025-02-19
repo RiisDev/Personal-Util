@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "1fG8k0t3zd0=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\irisd\\source\\repos\\Script\\Script.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\irisd\\.nuget\\packages\\fuzzysharp\\2.0.2\\fuzzysharp.2.0.2.nupkg.sha512",
+    "C:\\Users\\irisd\\.nuget\\packages\\htmlagilitypack\\1.11.72\\htmlagilitypack.1.11.72.nupkg.sha512"
+  ],
+  "logs": []
+}
