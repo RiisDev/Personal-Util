@@ -1,5 +1,6 @@
-﻿using Script.Bypasses;
+﻿using System.Diagnostics;
+using Script.Bypasses;
 
-await new BypassVip().Bypass("https://mega-guy.com/s?LdL6VlI2");
+Debug.WriteLine(await BypassVip.Bypass("[REDACTED]", "https://mega-guy.com/s?sLdL6VlI2"));
 
 while (true) Console.ReadLine();

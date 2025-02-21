@@ -1,93 +1,128 @@
-﻿using System.Net.Security;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
+using HtmlAgilityPack;
+using Script.Util;
 
 namespace Script.Bypasses
 {
     public class OuOBypass
     {
-        HttpClientHandler handler = new()
-        {
-            SslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls13,
-            ServerCertificateCustomValidationCallback = (_, _, _, _) => true
-        };
-        private static readonly HttpClient Client = new();
+        // Credit: https://github.com/love98ooo/ouo-bypass-go/blob/master/resolve.go
 
-        public async Task<string> RecaptchaV3Async()
+        public async Task<string> RecaptchaV3Async(HttpClient client)
         {
+            client.DefaultRequestHeaders.Clear();
+
             const string anchorUrl = "https://www.google.com/recaptcha/api2/anchor?ar=1&k=6Lcr1ncUAAAAAH3cghg6cOTPGARa8adOf-y9zv2x&co=aHR0cHM6Ly9vdW8ucHJlc3M6NDQz&hl=en&v=pCoGBhjs9s8EhFOHJFe8cqis&size=invisible&cb=ahgyd1gkfkhe";
             string urlBase = "https://www.google.com/recaptcha/";
 
-            Match matches = Regex.Match(anchorUrl, @"([api2|enterprise]+)/anchor\?(.*)");
-            urlBase += matches.Groups[1].Value + "/";
-            string paramsString = matches.Groups[2].Value;
+            Match match = RegexPatterns.GetReCaptchaType.Match(anchorUrl);
+            if (!match.Success || match.Groups.Count < 3)
+                throw new Exception("No matches found in ANCHOR_URL");
 
-            Client.DefaultRequestHeaders.Clear();
-            Client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/x-www-form-urlencoded");
+            urlBase += $"{match.ExtractValue(1)}/";
+            string paramsString = match.ExtractValue(2);
 
-            HttpResponseMessage res = await Client.GetAsync(urlBase + "anchor?" + paramsString);
-            string resContent = await res.Content.ReadAsStringAsync();
+            HttpResponseMessage response = await client.GetAsync($"{urlBase}anchor?{paramsString}");
 
-            Match tokenMatch = Regex.Match(resContent, "\"recaptcha-token\" value=\"(.*?)\"");
+            if (!response.IsSuccessStatusCode)
+                throw new Exception("reCAPTCHA status code is not 200");
+
+            string body = await response.Content.ReadAsStringAsync();
+            Match tokenMatch = RegexPatterns.GetReCaptchaType.Match(body);
+
+            if (!tokenMatch.Success || tokenMatch.Groups.Count < 2)
+                throw new Exception("No token found in response");
+
             string token = tokenMatch.Groups[1].Value;
+            Dictionary<string, string> paramsMap = [];
 
-            Dictionary<string, string> paramDict = paramsString.Split('&')
-                .Select(pair => pair.Split('='))
-                .ToDictionary(pair => pair[0], pair => pair[1]);
+            foreach (string pair in paramsString.Split('&'))
+            {
+                string[] parts = pair.Split('=');
+                if (parts.Length == 2) 
+                    paramsMap[parts[0]] = parts[1];
+            }
 
-            string postData = $"v={paramDict["v"]}&reason=q&c={token}&k={paramDict["k"]}&co={paramDict["co"]}";
-            res = await Client.PostAsync(urlBase + "reload?k=" + paramDict["k"], new StringContent(postData));
-            resContent = await res.Content.ReadAsStringAsync();
+            FormUrlEncodedContent postData = new(
+            [
+                new KeyValuePair<string, string>("v", paramsMap["v"]),
+                new KeyValuePair<string, string>("c", token),
+                new KeyValuePair<string, string>("k", paramsMap["k"]),
+                new KeyValuePair<string, string>("co", paramsMap["co"]),
+                new KeyValuePair<string, string>("reason", "q")
+                ]
+            );
 
-            Match answerMatch = Regex.Match(resContent, "\"rresp\",\"(.*?)\"");
-            return answerMatch.Groups[1].Value;
+            HttpResponseMessage postResponse = await client.PostAsync(urlBase + "reload?k=" + paramsMap["k"], postData);
+            if (!postResponse.IsSuccessStatusCode)
+                throw new Exception("Failed to get reCAPTCHA response");
+
+            string postBody = await postResponse.Content.ReadAsStringAsync();
+            Match answerMatch = RegexPatterns.GetReCaptchaResponse.Match(postBody);
+
+            if (!answerMatch.Success || answerMatch.Groups.Count < 2)
+                throw new Exception("No answer found in reCAPTCHA response");
+
+            return answerMatch.ExtractValue(1);
         }
 
-        public async Task<string?> OuoBypassAsync(string url)
+        public async Task<string?> OuoBypassAsync(string ouoURL)
         {
-            url = url.Replace("ouo.press", "ouo.io");
-            Uri uri = new(url);
-            string id = url.Split('/').Last();
+            (HttpClient client, _) = Misc.BuildClient();
 
-            Client.DefaultRequestHeaders.Clear();
-            Client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36");
-            Client.DefaultRequestHeaders.Add("authority", "ouo.io");
-            Client.DefaultRequestHeaders.Add("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7");
-            Client.DefaultRequestHeaders.Add("accept-language", "en-GB,en-US;q=0.9,en;q=0.8");
-            Client.DefaultRequestHeaders.Add("cache-control", "max-age=0");
-            Client.DefaultRequestHeaders.Add("referer", "http://www.google.com/ig/adde?moduleurl=");
-            Client.DefaultRequestHeaders.Add("upgrade-insecure-requests", "1");
+            string tempURL = ouoURL.Replace("ouo.press", "ouo.io");
+            Uri uri = new Uri(tempURL);
+            string id = uri.Segments[^1];
+            string location = "";
 
-            HttpResponseMessage res = await Client.GetAsync(url);
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36");
+            client.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7");
+            client.DefaultRequestHeaders.Add("Accept-Language", "en-GB,en-US;q=0.9,en;q=0.8");
 
-            string nextUrl = $"{uri.Scheme}://{uri.Host}/go/{id}";
+            HttpResponseMessage response = await client.GetAsync(tempURL);
+            if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            {
+                throw new Exception("ouo.io is blocking the request");
+            }
+
+            string body = await response.Content.ReadAsStringAsync();
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(body);
+
+            Dictionary<string, string> data = new Dictionary<string, string>();
+            foreach (var input in doc.DocumentNode.SelectNodes("//input"))
+            {
+                string name = input.GetAttributeValue("name", "");
+                if (name.EndsWith("token"))
+                {
+                    string value = input.GetAttributeValue("value", "");
+                    data[name] = value;
+                }
+            }
+
+            string nextURL = $"{uri.Scheme}://{uri.Host}/go/{id}";
+            data["x-token"] = await RecaptchaV3Async(client);
 
             for (int i = 0; i < 2; i++)
             {
-                if (res.Headers.Location != null)
+                await Task.Delay(1000);
+                var postData = new FormUrlEncodedContent(data);
+                HttpResponseMessage postResponse = await client.PostAsync(nextURL, postData);
+
+                if (postResponse.StatusCode == System.Net.HttpStatusCode.Found)
+                {
+                    location = postResponse.Headers.Location.ToString();
                     break;
+                }
+                else if (postResponse.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                {
+                    throw new Exception("ouo.io is blocking the request");
+                }
 
-                string resContent = await res.Content.ReadAsStringAsync();
-
-                // Extract form inputs
-                Dictionary<string, string> inputs = Regex.Matches(resContent, @"<input.*?name=[""'](.*?)[""'].*?value=[""'](.*?)[""'].*?>")
-                    .Where(m => Regex.IsMatch(m.Groups[1].Value, "token$"))
-                    .ToDictionary(
-                        m => m.Groups[1].Value,
-                        m => m.Groups[2].Value
-                    );
-
-                inputs["x-token"] = await RecaptchaV3Async();
-
-                FormUrlEncodedContent content = new(inputs);
-                Client.DefaultRequestHeaders.Clear();
-                Client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/x-www-form-urlencoded");
-
-                res = await Client.PostAsync(nextUrl, content);
-
-                nextUrl = $"{uri.Scheme}://{uri.Host}/xreallcygo/{id}";
+                nextURL = $"{uri.Scheme}://{uri.Host}/xreallcygo/{id}";
             }
 
-            return res.Headers.Location?.ToString();
+            return location;
         }
     }
 }
