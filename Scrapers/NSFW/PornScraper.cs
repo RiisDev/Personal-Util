@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using System.Text.Json;
 using HtmlAgilityPack;
 using Script.Util;
@@ -213,10 +214,13 @@ public record ScraperBuilder(
     MetadataSettings Settings
 );
 
+public record DescriptionReplace([StringSyntax(StringSyntaxAttribute.Regex)] string Regex, string Value);
+
 public record MetadataSettings(
     string PageRequiredBody,
     string VideoIndexSearch,
     string DescriptionXPath,
+    DescriptionReplace DescriptionReplace,
     string DownloadXPath,
     string TagsXPath,
     string PerformersXPath,

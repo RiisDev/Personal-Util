@@ -12,7 +12,12 @@
                     Settings: new MetadataSettings(
                         PageRequiredBody: "class=\"videoinfo\"",
                         VideoIndexSearch: "//div[@class='content']",
-                        DescriptionXPath: "//body//div[@class=\"videoinfo\"]/p//text() | //body//div[@class=\"videoinfo\"]/p/span[@class=\"readmore\"]//text()\n",
+                        DescriptionXPath:
+                        "//body//div[@class=\"videoinfo\"]/p//text() | //body//div[@class=\"videoinfo\"]/p/span[@class=\"readmore\"]//text()\n",
+                        DescriptionReplace: new DescriptionReplace(
+                            Regex: "", 
+                            Value: ""
+                        ),
                         DownloadXPath: "//ul[@class=\"download\"]",
                         TagsXPath: "//div[@class=\"videoinfo\"]/div[@class=\"cat\"][2]",
                         PerformersXPath: "//div[@class=\"videoinfo\"]/div[@class=\"cat\"][1]",
