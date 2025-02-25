@@ -14,6 +14,9 @@
 ./Properties/*
 /Properties/*
 
+Program.cs
+./Program.cs
+
 *launchSettings*
 *.nupkg
 *.nuspec
