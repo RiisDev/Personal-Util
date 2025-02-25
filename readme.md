@@ -58,7 +58,7 @@ public static string JsonSerialize<TValue>(TValue obj, bool @unsafe = true); // 
 * string ConvertSecondsToTime | Returns a formatted string, will take in int/double/long
 * (HttpClient, CookieContainer) BuildClient | Builds an http client with default settings and returns as a tuple
 * GetRootDomain | Returns the rootdomain and TLD from a url, not sure why it's not built into the Uri namespace
-* FOrmatBytes | Takes in a double, returns a forammted string with B,KB,MB,GB,TB
+* FormatBytes | Takes in a double, returns a forammted string with B,KB,MB,GB,TB
 
 ### Regex Expander
 * static string ExtractValue(this Match match, int group = 0) => match.Groups[group].Value;
