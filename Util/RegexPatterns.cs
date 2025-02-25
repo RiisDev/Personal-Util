@@ -14,5 +14,4 @@ public static class RegexPatterns
     public static Regex GetReCaptchaType = new ("([api2|enterprise]+)/anchor\\?(.*)", RegexOptions.Compiled);
     public static Regex GetReCaptchaToken = new("\"recaptcha-token\" value=\"(.*?)\"", RegexOptions.Compiled);
     public static Regex GetReCaptchaResponse = new("\"rresp\",\"(.*?)\"", RegexOptions.Compiled);
-
 }

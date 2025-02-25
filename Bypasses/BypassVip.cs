@@ -16,15 +16,23 @@ namespace Script.Bypasses
         public delegate void VerificationCode();
         public event VerificationCode? OnVerificationRequested;
         
-        public static async Task<string> Bypass(string apiKey, string url)
+        public static async Task<List<string>> Bypass(string apiKey, List<string> urls)
         {
-            (HttpClient client, _) = Misc.BuildClient();
+            List<string> bypassed = [];
 
+            (HttpClient client, _) = Misc.BuildClient();
             client.DefaultRequestHeaders.Add("x-api-key", apiKey);
 
-            HttpResponseMessage response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get, $"https://api.bypass.vip/premium/bypass?url={url}"));
+            foreach (string url in urls)
+            {
+                HttpResponseMessage response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get, $"https://api.bypass.vip/premium/bypass?url={url}"));
 
-            return response.IsSuccessStatusCode ? (await response.Content.ReadFromJsonAsync<BypassApiReturn>() ?? new BypassApiReturn("","")).Result : "";
+                if (!response.IsSuccessStatusCode) continue;
+
+                bypassed.Add((await response.Content.ReadFromJsonAsync<BypassApiReturn>() ?? new BypassApiReturn("", "")).Result);
+            }
+
+            return bypassed;
         }
 
         public async Task<string> TelegramBypass(TelegramUser user, string url)
