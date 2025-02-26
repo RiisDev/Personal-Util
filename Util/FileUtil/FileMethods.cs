@@ -1,6 +1,6 @@
 ﻿using Script.Util.Expanders;
 
-namespace Script.Util.File
+namespace Script.Util.FileUtil
 {
     public static class FileMethods
     {

@@ -7,7 +7,7 @@ using System.Web;
 using Script.WebDrivers.HeavyDriver;
 using Script.WebDrivers.LightweightDriver.DriverHandler;
 
-namespace Script.Util;
+namespace Script.Scrapers;
 
 // Needs ReWrite
 

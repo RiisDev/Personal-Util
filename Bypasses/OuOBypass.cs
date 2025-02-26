@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using Script.Util.Expanders;
-using Script.Util.Regex;
+using Script.Util.RegexUtil;
 
 namespace Script.Bypasses
 {
