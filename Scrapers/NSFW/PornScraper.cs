@@ -2,7 +2,7 @@
 using System.Net;
 using System.Text.Json;
 using HtmlAgilityPack;
-using Script.Util;
+using Script.Util.Expanders;
 
 namespace Script.Scrapers.NSFW;
 
@@ -32,7 +32,7 @@ public class PornScraper
             string name = parts[0];
             string value = parts[1];
 
-            Container.Add(new Cookie(name, value, "/", Misc.GetRootDomain(builder.IndexPage)));
+            Container.Add(new Cookie(name, value, "/", Parsing.GetRootDomain(builder.IndexPage)));
         }
 
         _scraperSettings = builder;
@@ -47,7 +47,7 @@ public class PornScraper
         videoListParsed.AddRange(videoData.Where(video => video.Downloads.Count > 0));
 
         if (writeFinished)
-            await File.WriteAllTextAsync($"{Misc.GetRootDomain(_scraperSettings.IndexPage)}-videos.json", JsonSerializer.Serialize(videoListParsed));
+            await File.WriteAllTextAsync($"{Parsing.GetRootDomain(_scraperSettings.IndexPage)}-videos.json", JsonSerializer.Serialize(videoListParsed));
 
         return videoListParsed;
     }

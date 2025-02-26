@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
-using Script.Util;
+using Script.Util.Expanders;
 using TL;
 using WTelegram;
 
@@ -20,7 +20,7 @@ namespace Script.Bypasses
         {
             List<string> bypassed = [];
 
-            (HttpClient client, _) = Misc.BuildClient();
+            (HttpClient client, _) = Parsing.BuildClient();
             client.DefaultRequestHeaders.Add("x-api-key", apiKey);
 
             foreach (string url in urls)

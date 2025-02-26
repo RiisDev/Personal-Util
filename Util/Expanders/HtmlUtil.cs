@@ -1,6 +1,6 @@
 ﻿using HtmlAgilityPack;
 
-namespace Script.Util
+namespace Script.Util.Expanders
 {
     public record Href(string Link, string Title, string LinkText);
 
@@ -17,7 +17,7 @@ namespace Script.Util
             if (!string.IsNullOrEmpty(startNodeXPath))
             {
                 HtmlNode? startNodeElement = document.DocumentNode.SelectSingleNode(startNodeXPath);
-                if (startNodeElement != null) 
+                if (startNodeElement != null)
                     searchRoot = startNodeElement;
             }
 

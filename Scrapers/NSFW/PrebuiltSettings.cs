@@ -1,5 +1,10 @@
-﻿namespace Script.Scrapers.NSFW
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Script.Scrapers.NSFW
 {
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
+    [SuppressMessage("ReSharper", "IdentifierTypo")]
+    [SuppressMessage("ReSharper", "StringLiteralTypo")]
     public static class PrebuiltSettings
     {
         public static PornScraper AvJialiSettings(string cookies)
@@ -15,7 +20,7 @@
                         DescriptionXPath:
                         "//body//div[@class=\"videoinfo\"]/p//text() | //body//div[@class=\"videoinfo\"]/p/span[@class=\"readmore\"]//text()\n",
                         DescriptionReplace: new DescriptionReplace(
-                            Regex: "", 
+                            Regex: @"(\.\.\.\nRead More)", 
                             Value: ""
                         ),
                         DownloadXPath: "//ul[@class=\"download\"]",
@@ -27,5 +32,7 @@
                 )
             );
         }
+
+        
     }
 }

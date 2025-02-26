@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using HtmlAgilityPack;
-using Script.Util;
+using Script.Util.Expanders;
+using Script.Util.Regex;
 
 namespace Script.Bypasses
 {
@@ -68,7 +69,7 @@ namespace Script.Bypasses
 
         public async Task<string?> OuoBypassAsync(string ouoURL)
         {
-            (HttpClient client, _) = Misc.BuildClient();
+            (HttpClient client, _) = WebUtil.BuildClient();
 
             string tempURL = ouoURL.Replace("ouo.press", "ouo.io");
             Uri uri = new Uri(tempURL);
