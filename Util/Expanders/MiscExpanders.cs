@@ -21,5 +21,7 @@ namespace Script.Util.Expanders
                 if (console) Console.WriteLine(item);
             }
         }
+
+        public static string RandomGuid() => Guid.NewGuid().ToString("N");
     }
 }

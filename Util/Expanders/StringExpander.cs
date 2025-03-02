@@ -26,7 +26,7 @@ namespace Script.Util.Expanders
 
         }
         
-        public static bool IsNullOrEmpty(this string text) => string.IsNullOrEmpty(text);
+        public static bool IsNullOrEmpty(this string? text) => string.IsNullOrEmpty(text);
 
         public static string Normalize(this string abstractText)
         {

@@ -1,8 +1,11 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Text;
 using System.Text.Json;
 using HtmlAgilityPack;
 using Script.Util.Expanders;
+using Script.Util.FileUtil;
 
 namespace Script.Scrapers.NSFW;
 
@@ -114,6 +117,45 @@ public class PornScraper
 
         return cacheVideos;
     }
+
+    public async Task AriaDownload(List<PornVideo> downloads, string destinationDirectory, int maxDownloads = 3)
+    {
+        string fileList = $"{Directories.Temp}\\aria2c-downloader-{MiscExpanders.RandomGuid()}.txt";
+        StringBuilder ariaDownloadFile = new();
+        downloads.ForEach(video => ariaDownloadFile.AppendLine($"{video.Downloads.First().Link} out=\"{destinationDirectory}\\{video.Downloads.First().Title}\""));
+        await File.WriteAllTextAsync(fileList, ariaDownloadFile.ToString());
+
+        Process process = new ()
+        {
+            StartInfo = new ProcessStartInfo()
+            {
+                Verb = "runas",
+                FileName = "aria2c",
+                ArgumentList =
+                {
+                   $"--input-file=\"{fileList}\"",
+                   $"--max-concurrent-downloads={maxDownloads}",
+                   "--continue=true",
+                   "--enable-progress=true",
+                   "--console-log-level=info"
+                },
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            }
+        };
+        process.Start();
+        process.OutputDataReceived += (_, data) =>
+        {
+            if (data.Data?.IsNullOrEmpty() ?? true) return;
+            Debug.WriteLine(data.Data);
+            Console.WriteLine(data.Data);
+        };
+        process.BeginOutputReadLine();
+
+        await process.WaitForExitAsync();
+    }
+
     public async Task StartDownloads(List<PornVideo> downloads, string destinationDirectory, int threads = 3)
     {
         SemaphoreSlim semaphore = new(threads);
