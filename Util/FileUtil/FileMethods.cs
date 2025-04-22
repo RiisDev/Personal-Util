@@ -1,4 +1,5 @@
 ﻿using Script.Util.Expanders;
+using Script.Util.RegexUtil;
 
 namespace Script.Util.FileUtil
 {
@@ -15,6 +16,13 @@ namespace Script.Util.FileUtil
             List<string> fileNames = [];
             string[] files = GetFiles(directory);
             string[] duplicates = files.Where(file => !fileNames.TryAdd(Path.GetFileNameWithoutExtension(file))).ToArray();
+            return duplicates;
+        }
+
+        public static string[] GetRegexDuplicates(string directory)
+        {
+            string[] files = GetFiles(directory);
+            string[] duplicates = files.Where(file => Path.GetFileNameWithoutExtension(file).RegexEndsWith(RegexPatterns.DuplicateFile.ToString())).ToArray();
             return duplicates;
         }
 

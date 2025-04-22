@@ -20,7 +20,8 @@ namespace Script.Bypasses
         {
             List<string> bypassed = [];
 
-            (HttpClient client, _) = WebUtil.BuildClient();
+            using HttpClient client = WebUtil.BuildClient().Item1;
+
             client.DefaultRequestHeaders.Add("x-api-key", apiKey);
 
             foreach (string url in urls)

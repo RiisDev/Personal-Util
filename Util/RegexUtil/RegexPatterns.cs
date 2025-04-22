@@ -16,4 +16,6 @@ public static class RegexPatterns
     public static Regex GetReCaptchaType = new("([api2|enterprise]+)/anchor\\?(.*)", RegexOptions.Compiled);
     public static Regex GetReCaptchaToken = new("\"recaptcha-token\" value=\"(.*?)\"", RegexOptions.Compiled);
     public static Regex GetReCaptchaResponse = new("\"rresp\",\"(.*?)\"", RegexOptions.Compiled);
+
+    public static Regex DuplicateFile = new(@"\(\d{1,2}\)", RegexOptions.Compiled);
 }
