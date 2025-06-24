@@ -1,16 +1,18 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
-using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using HtmlAgilityPack;
 using Script.Util.Expanders;
-using Script.Util.FileUtil;
 
 namespace Script.Scrapers.NSFW;
 
 public class PornScraper
 {
+    private readonly List<string> _videosFinished = [];
+    private int _videosCompleted;
+
     private readonly HtmlDocument _document = new();
     private readonly ScraperBuilder _scraperSettings;
 
@@ -22,6 +24,13 @@ public class PornScraper
         CookieContainer = Container,
         AllowAutoRedirect = true
     });
+
+    [Flags]
+    public enum IdmFlags
+    {
+        NoConfirmationDialog = 1,
+        AddToQueueOnly = 2
+    }
 
     public PornScraper(ScraperBuilder builder)
     {
@@ -41,26 +50,34 @@ public class PornScraper
         _scraperSettings = builder;
     }
 
-    public async Task<List<PornVideo>> StartScraper(int startingPage, int endPage, bool writeFinished = true)
+    public async Task<List<PornVideo>> StartScraper(int startingPage, int endPage, bool writeFinished = true, int startIndex = 0, string watchDirectory = "", bool startDownloads = false, Func<PornVideo, Action>? downloadAction = null)
     {
         List<PornVideo> videoListParsed = [];
         List<PornVideo> videoData = await ScrapePageIndexes(startingPage, endPage);
-        videoData = await ScrapeVideoMetadata(videoData);
+        videoData = await ScrapeVideoMetadata(videoData, startDownloads, startIndex, watchDirectory, downloadAction);
 
         videoListParsed.AddRange(videoData.Where(video => video.Downloads.Count > 0));
 
         if (writeFinished)
-            await File.WriteAllTextAsync($"{WebUtil.GetRootDomain(_scraperSettings.IndexPage)}-videos.json", JsonSerializer.Serialize(videoListParsed));
+            await File.WriteAllTextAsync($"{WebUtil.GetRootDomain(_scraperSettings.IndexPage)}-videos.json", JsonSerializer.Serialize(videoListParsed, new JsonSerializerOptions
+            {
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+                MaxDepth = 64,
+                IncludeFields = true,
+                WriteIndented = true
+            }));
 
         return videoListParsed;
     }
 
     private async Task<List<PornVideo>> ScrapePageIndexes(int startingPage, int endPage)
     {
+        Console.WriteLine("Starting page scraper...");
         List<PornVideo> videoList = [];
 
         for (int index = startingPage; index <= endPage; index++)
         {
+            Console.WriteLine($"Parsing: {_scraperSettings.IndexPage}{index}");
             HttpRequestMessage request = new(HttpMethod.Get, $"{_scraperSettings.IndexPage}{index}");
             HttpResponseMessage response = await _client.SendAsync(request);
             string basePage = await response.Content.ReadAsStringAsync();
@@ -68,20 +85,26 @@ public class PornScraper
 
             List<Href> videos = _document.GetLinks(basePage, _scraperSettings.Settings.VideoIndexSearch);
 
+            Debug.WriteLine(JsonSerializer.Serialize(videos));
+            Console.WriteLine($"Found: {videos.Count}");
+
             videoList.AddRange(videos.Select(video => new PornVideo(video.Title, video.Link)));
         }
 
         return videoList;
     }
 
-    private async Task<List<PornVideo>> ScrapeVideoMetadata(List<PornVideo> cacheVideos)
+    private async Task<List<PornVideo>> ScrapeVideoMetadata(List<PornVideo> cacheVideos, bool starDownloads = false, int startIndex = 0, string watchDirectory = "", Func<PornVideo, Action>? downloadAction = null)
     {
         MetadataSettings settings = _scraperSettings.Settings;
 
         foreach (PornVideo video in cacheVideos)
         {
             if (!Uri.TryCreate(video.PageUrl, UriKind.Absolute, out Uri? uri)) continue;
-            if (uri.Scheme != Uri.UriSchemeHttps && uri.Scheme != Uri.UriSchemeHttp) continue; // Double check the page is real
+            if (uri.Scheme != Uri.UriSchemeHttps && uri.Scheme != Uri.UriSchemeHttp) continue; // Double-check the page is real
+            if (_videosFinished.Contains(video.Title!.Trim())) continue;
+
+            _videosFinished.TryAdd(video.Title!.Trim()); // Add to done list so we don't scrape the same page again
 
             HttpRequestMessage request = new(HttpMethod.Get, uri);
             HttpResponseMessage response = await _client.SendAsync(request);
@@ -90,12 +113,28 @@ public class PornScraper
             if (response.StatusCode == HttpStatusCode.NotFound) continue;
             if (!basePage.Contains(settings.PageRequiredBody)) continue; // If page doesn't have 'video-info' etc, skip it not a valid page
 
+            _videosCompleted++;
+
+            if (_videosCompleted <= startIndex) continue;
+
+            Console.WriteLine($"Meta Data Scrape: {video.Title}");
             List<Dictionary<string, string>> nodeData = _document.GetNodesData(basePage, settings.DescriptionXPath);
             string descriptionText = nodeData.Aggregate("", (current, descriptionPart) => current + descriptionPart.Values.First());
 
-            List<Href> downloadLinks = _document.GetLinks(basePage, settings.DownloadXPath);
+            List<Href> downloadLinks = settings.DownloadXPath.Contains("div") ? _document.GetDivLinks(basePage, settings.DownloadXPath) : _document.GetLinks(basePage, settings.DownloadXPath);
+            
+            if (starDownloads && downloadAction is not null)
+                downloadAction.Invoke(video);
+            
             List<Href> tagsLink = _document.GetLinks(basePage, settings.TagsXPath);
             List<Href> performersLink = _document.GetLinks(basePage, settings.PerformersXPath);
+
+            Console.WriteLine($"Found Downloads: {downloadLinks.Count}");
+            Console.WriteLine($"Found Tags: {tagsLink.Count}");
+            Console.WriteLine($"Found Performers: {performersLink.Count}");
+
+            if (starDownloads && !string.IsNullOrEmpty(watchDirectory))
+                await WaitTillDownloaded(watchDirectory);
 
             string duration = _document.GetNodesData(basePage, settings.DurationXPath).First().Values.First();
             string uploadTime = _document.GetNodesData(basePage, settings.DateTimeXPath).First().Values.First();
@@ -109,8 +148,7 @@ public class PornScraper
                 video.Performers += $"{performer}, ";
             foreach (Href tag in tagsLink)
                 video.Performers += $"{tag}, ";
-
-
+            
             video.Performers = video.Performers.TrimEnd(',', ' ');
             video.Tags = video.Tags.TrimEnd(',', ' ');
         }
@@ -118,42 +156,51 @@ public class PornScraper
         return cacheVideos;
     }
 
-    public async Task AriaDownload(List<PornVideo> downloads, string destinationDirectory, int maxDownloads = 3)
+    private static async Task WaitTillDownloaded(string outputDirector)
     {
-        string fileList = $"{Directories.Temp}\\aria2c-downloader-{MiscExpanders.RandomGuid()}.txt";
-        StringBuilder ariaDownloadFile = new();
-        downloads.ForEach(video => ariaDownloadFile.AppendLine($"{video.Downloads.First().Link} out=\"{destinationDirectory}\\{video.Downloads.First().Title}\""));
-        await File.WriteAllTextAsync(fileList, ariaDownloadFile.ToString());
-
-        Process process = new ()
+        int oldCount = Directory.GetFiles(outputDirector, "*.*", SearchOption.TopDirectoryOnly).Length;
+        while (true)
         {
-            StartInfo = new ProcessStartInfo()
-            {
-                Verb = "runas",
-                FileName = "aria2c",
-                ArgumentList =
-                {
-                   $"--input-file=\"{fileList}\"",
-                   $"--max-concurrent-downloads={maxDownloads}",
-                   "--continue=true",
-                   "--enable-progress=true",
-                   "--console-log-level=info"
-                },
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            }
-        };
-        process.Start();
-        process.OutputDataReceived += (_, data) =>
-        {
-            if (data.Data?.IsNullOrEmpty() ?? true) return;
-            Debug.WriteLine(data.Data);
-            Console.WriteLine(data.Data);
-        };
-        process.BeginOutputReadLine();
+            await Task.Delay(500);
+            int newCount = Directory.GetFiles(outputDirector, "*.*", SearchOption.TopDirectoryOnly).Length;
+            if (newCount > oldCount) break;
+        }
+    }
 
-        await process.WaitForExitAsync();
+    public async Task DownloadWithIdm(PornVideo video, string destinationDirectory, bool waitForDownload, IdmFlags flags)
+    {
+        IDManLib.CIDMLinkTransmitterClass transmitter = new();
+
+        int flagValue = (int)flags;
+
+        if (!Directory.Exists(destinationDirectory))
+            Directory.CreateDirectory(destinationDirectory);
+
+        transmitter.SendLinkToIDM2(
+            bstrUrl: video.Downloads.First().Link,
+            bstrReferer: video.PageUrl,
+            bstrCookies: _scraperSettings.CookieString,
+            bstrData: null,
+            bstrUser: null,
+            bstrPassword: null,
+            bstrLocalPath: destinationDirectory,
+            bstrLocalFileName: video.Title,
+            lFlags: flagValue,
+            reserved1: Type.Missing,
+            reserved2: Type.Missing
+        );
+
+        if (waitForDownload)
+            await WaitTillDownloaded(destinationDirectory);
+    }
+
+    public async Task StartIdmDownloads(List<PornVideo> downloads, string destinationDirectory, bool waitEachDownload, IdmFlags flags)
+    {
+        foreach (PornVideo video in downloads)
+        {
+            await DownloadWithIdm(video, destinationDirectory, waitEachDownload, flags);
+            await Task.Delay(250); // We don't want to overload the COM
+        }
     }
 
     public async Task StartDownloads(List<PornVideo> downloads, string destinationDirectory, int threads = 3)
@@ -163,7 +210,7 @@ public class PornScraper
 
         foreach (PornVideo video in downloads)
         {
-            string destinationPath = $"{destinationDirectory}\\{video.Title?.SafeFileName()}{Path.GetExtension(video.Downloads.First().Link)}";
+            string destinationPath = $"{destinationDirectory}\\{video.Title?.SafeFileName()}.mp4";
 
             Console.WriteLine($"Starting download {downloadIndex + 1}/{downloads.Count}: {video.Title?.SafeFileName()}");
 

@@ -36,6 +36,37 @@ namespace Script.Util.Expanders
             return links;
         }
 
+
+        public static List<Href> GetDivLinks(this HtmlDocument document, string html, string? startNodeXPath = null)
+        {
+            List<Href> links = [];
+
+            document.DocumentNode.RemoveAll();
+            document.LoadHtml(html);
+
+            HtmlNode searchRoot = document.DocumentNode;
+            if (!string.IsNullOrEmpty(startNodeXPath))
+            {
+                HtmlNode? startNodeElement = document.DocumentNode.SelectSingleNode(startNodeXPath);
+                if (startNodeElement != null)
+                    searchRoot = startNodeElement;
+            }
+
+            HtmlNodeCollection? hrefNodes = searchRoot.SelectNodes(".//div[@data-value]");
+            if (hrefNodes == null) return links;
+
+            links.AddRange(hrefNodes.Select(hrefNode =>
+                new Href(
+                    hrefNode.GetAttributeValue("data-value", "#"),
+                    hrefNode.GetDirectInnerText(),
+                    hrefNode.InnerText.Trim()
+                )
+            ));
+
+
+            return links;
+        }
+
         public static List<Dictionary<string, string>> GetNodesData(this HtmlDocument document, string html, string xpath, params string[] attributes)
         {
             List<Dictionary<string, string>> data = [];

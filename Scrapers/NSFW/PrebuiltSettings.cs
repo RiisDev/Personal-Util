@@ -33,6 +33,29 @@ namespace Script.Scrapers.NSFW
             );
         }
 
-        
+        public static PornScraper PornForce(string cookies)
+        {
+            return new PornScraper(
+                new ScraperBuilder(
+                    UserAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:135.0) Gecko/20100101 Firefox/135.0",
+                    CookieString: cookies,
+                    IndexPage: "https://members.pornforce.com/browse/?sort=popular&type=scene&cat=517&page=",
+                    Settings: new MetadataSettings(
+                        PageRequiredBody: "class=\"movie_wrapper\"",
+                        VideoIndexSearch: "//div[@class='mt-0']",
+                        DescriptionXPath: "//*[@id=\"description-text\"]",
+                        DescriptionReplace: new DescriptionReplace(
+                            Regex: "",
+                            Value: ""
+                        ),
+                        DownloadXPath: "//div[@data-options=\"download-options\"]",
+                        TagsXPath: "//div[@class=\"checkcate category-list mb-1 flex flex-wrap\"]",
+                        PerformersXPath: "//div[@class=\"modelname flex flex-wrap pb-2\"]",
+                        DurationXPath: "//div[@class='date-count']/text()",
+                        DateTimeXPath: "//div[@class='date-count']/text()"
+                    )
+                )
+            );
+        }
     }
 }
