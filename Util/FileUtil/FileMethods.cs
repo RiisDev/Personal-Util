@@ -1,8 +1,4 @@
-﻿using Script.Util.Expanders;
-using Script.Util.RegexUtil;
-using System.Diagnostics;
-
-namespace Script.Util.FileUtil
+﻿namespace Script.Util.FileUtil
 {
     public static class FileMethods
     {
@@ -27,7 +23,7 @@ namespace Script.Util.FileUtil
             return duplicates;
         }
 
-        public static string[] GetAllDuplicates(string directory) => GetDuplicates(directory).Concat(GetRegexDuplicates(directory)).ToArray();
+        public static string[] GetAllDuplicates(string directory) => GetDuplicates(directory).Concat(GetRegexDuplicates(directory)).ToList().OrderBy(x=> x, StringComparer.InvariantCultureIgnoreCase).ToArray();
 
         public static long GetFileSize(string file) => new FileInfo(file).Length;
 
@@ -58,5 +54,23 @@ namespace Script.Util.FileUtil
         }
 
         public static void RenameDuplicates(string directory) => GetAllDuplicates(directory).ToList().ForEach(file=> Rename(file, Path.GetFileNameWithoutExtension(file).RegexReplace(RegexPatterns.DuplicateFile.ToString(), string.Empty).Trim()));
-    }
+
+        public static void FixShowFormatting(string directory)
+        {
+	        foreach (string file in Directory.GetFiles(directory, "*.*", SearchOption.AllDirectories))
+	        {
+		        Match invalidForm = Regex.Match(file, @"-\s(\d\d)x(\d\d)\s-");
+
+		        if (invalidForm.Success)
+		        {
+			        string newFile = Regex.Replace(file, @"-\s(\d\d)x(\d\d)\s-", m => $"- S{m.Groups[1].Value}E{m.Groups[2].Value} -");
+			        Debug.WriteLine($"{Path.GetFileName(file)} -> {Path.GetFileName(newFile)}");
+
+			        try { File.Move(file, newFile); }
+			        catch { Debug.WriteLine("File in use"); }
+		        }
+	        }
+
+		}
+	}
 }

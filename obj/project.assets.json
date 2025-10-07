@@ -324,23 +324,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\irisd\\.nuget\\packages\\": {},
+    "C:\\Users\\Riis\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\irisd\\source\\repos\\Script\\Script.csproj",
+      "projectUniqueName": "C:\\Users\\Riis\\source\\repos\\Script\\Script.csproj",
       "projectName": "Script",
-      "projectPath": "C:\\Users\\irisd\\source\\repos\\Script\\Script.csproj",
-      "packagesPath": "C:\\Users\\irisd\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\irisd\\source\\repos\\Script\\obj\\",
+      "projectPath": "C:\\Users\\Riis\\source\\repos\\Script\\Script.csproj",
+      "packagesPath": "C:\\Users\\Riis\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Riis\\source\\repos\\Script\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\irisd\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Riis\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -368,7 +368,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.200"
+      "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
       "net8.0": {
@@ -407,7 +407,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.202/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

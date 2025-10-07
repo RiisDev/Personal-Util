@@ -4,7 +4,7 @@ namespace Script.Util.Expanders
 {
     public static class Parsing
     {
-        public static string ConvertSecondsToTime(long seconds)
+        public static string ConvertSecondsToTime(this long seconds)
         {
             List<(string Name, long Value)> units =
             [
@@ -24,10 +24,10 @@ namespace Script.Util.Expanders
             return string.Join(", ", result);
         }
 
-        public static string ConvertSecondsToTime(double seconds) => ConvertSecondsToTime(long.Parse(seconds.ToString(CultureInfo.InvariantCulture)));
-        public static string ConvertSecondsToTime(int seconds) => ConvertSecondsToTime(long.Parse(seconds.ToString(CultureInfo.InvariantCulture)));
+        public static string ConvertSecondsToTime(this double seconds) => ConvertSecondsToTime(long.Parse(seconds.ToString(CultureInfo.InvariantCulture)));
+        public static string ConvertSecondsToTime(this int seconds) => ConvertSecondsToTime(long.Parse(seconds.ToString(CultureInfo.InvariantCulture)));
         
-        public static string FormatBytes(double bytes)
+        public static string FormatBytes(this double bytes)
         {
             switch (bytes)
             {

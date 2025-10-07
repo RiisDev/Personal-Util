@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace Script.Util.Expanders
+﻿namespace Script.Util.Expanders
 {
     public static class MiscExpanders
     {
@@ -10,7 +8,7 @@ namespace Script.Util.Expanders
             list.Add(value);
             return true;
         }
-
+    
         public static void Flip(ref this bool value) => value = !value;
 
         public static void Print<T>(this IEnumerable<T> collection, bool console = false)

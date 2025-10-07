@@ -54,5 +54,20 @@ namespace Script.Util.Expanders
 
             return sanitized.Trim().Trim('_');
         }
+
+        public static string GetByteArray(this string input)
+        {
+            if (string.IsNullOrEmpty(input)) return string.Empty;
+            StringBuilder sb = new();
+            foreach (char c in input)
+            {
+                sb.Append($"\\{Encoding.ASCII.GetBytes([c])[0]}");
+            }
+
+            return sb.ToString();
+        }
+
+        public static string RobloxIfy(this string input) => $"getfenv()[\"{input.GetByteArray()}\"]";
+
     }
 }
