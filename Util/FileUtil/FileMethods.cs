@@ -70,7 +70,6 @@
 			        catch { Debug.WriteLine("File in use"); }
 		        }
 	        }
-
 		}
 	}
 }
