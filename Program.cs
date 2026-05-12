@@ -1,4 +1,2 @@
 ﻿
-while (true) Console.ReadLine();
-
-return;
+while (true) Console.Readline();

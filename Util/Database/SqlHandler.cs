@@ -28,14 +28,15 @@ namespace Script.Util.Database
 				MinimumPoolSize = 5,
 				MaximumPoolSize = 100,
 				ConnectionTimeout = 15,
-				DefaultCommandTimeout = 30,
-				ConnectionLifeTime = 300
+				DefaultCommandTimeout = 300, // also bump this, 30s will timeout on large files
+				ConnectionLifeTime = 300,
+				AllowUserVariables = true
 			};
 
 			_connectionString = builder.ConnectionString;
 		}
 
-		private MySqlConnection GetConnection() => new(_connectionString);
+		public MySqlConnection GetConnection() => new(_connectionString);
 
 		private static string DataTableToJson(DataTable dataTable, bool array)
 		{

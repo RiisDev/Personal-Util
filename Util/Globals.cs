@@ -17,3 +17,4 @@ global using static Script.Util.Expanders.Parsing;
 global using static Script.Util.Expanders.MiscExpanders;
 global using static Script.Util.Expanders.StringExpander;
 global using static Script.Util.Expanders.ShittyMethods;
+global using System.IO.Compression;

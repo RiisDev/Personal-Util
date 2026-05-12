@@ -1,15 +1,16 @@
 {
   "version": 2,
-  "dgSpecHash": "LhJcb/Fh2mU=",
+  "dgSpecHash": "OCsJYfS/jQQ=",
   "success": true,
   "projectFilePath": "C:\\Users\\Riis\\source\\repos\\Script\\Script.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Riis\\.nuget\\packages\\fuzzysharp\\2.0.2\\fuzzysharp.2.0.2.nupkg.sha512",
-    "C:\\Users\\Riis\\.nuget\\packages\\htmlagilitypack\\1.11.72\\htmlagilitypack.1.11.72.nupkg.sha512",
+    "C:\\Users\\Riis\\.nuget\\packages\\htmlagilitypack\\1.12.4\\htmlagilitypack.1.12.4.nupkg.sha512",
     "C:\\Users\\Riis\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.2\\microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg.sha512",
     "C:\\Users\\Riis\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.2\\microsoft.extensions.logging.abstractions.8.0.2.nupkg.sha512",
-    "C:\\Users\\Riis\\.nuget\\packages\\mysqlconnector\\2.4.0\\mysqlconnector.2.4.0.nupkg.sha512",
-    "C:\\Users\\Riis\\.nuget\\packages\\wtelegramclient\\4.3.1\\wtelegramclient.4.3.1.nupkg.sha512"
+    "C:\\Users\\Riis\\.nuget\\packages\\mysqlconnector\\2.5.0\\mysqlconnector.2.5.0.nupkg.sha512",
+    "C:\\Users\\Riis\\.nuget\\packages\\system.servicemodel.syndication\\10.0.7\\system.servicemodel.syndication.10.0.7.nupkg.sha512",
+    "C:\\Users\\Riis\\.nuget\\packages\\wtelegramclient\\4.4.4\\wtelegramclient.4.4.4.nupkg.sha512"
   ],
   "logs": []
 }
